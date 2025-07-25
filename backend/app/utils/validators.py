@@ -8,15 +8,15 @@ def validate_email(email):
 def validate_password(password):
     """Validar fortaleza de contraseña"""
     if len(password) < 8:
-        return False, "Password must be at least 8 characters long"
+        return False, "La contraseña debe tener al menos 8 caracteres"
     
     if not re.search(r'[A-Z]', password):
-        return False, "Password must contain at least one uppercase letter"
+        return False, "La contraseña debe contener al menos una letra mayúscula"
     
     if not re.search(r'[a-z]', password):
-        return False, "Password must contain at least one lowercase letter"
-    
+        return False, "La contraseña debe contener al menos una letra minúscula"
+
     if not re.search(r'\d', password):
-        return False, "Password must contain at least one digit"
+        return False, "La contraseña debe contener al menos un dígito"
     
-    return True, "Password is valid"
+    return True, "La contraseña es válida"

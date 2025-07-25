@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'Usuarios'
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -19,8 +19,8 @@ class User(db.Model):
     
     def to_dict(self):
         return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email,
-            'created_at': self.created_at.isoformat()
+            'ID': self.id,
+            'Nombre de usuario': self.username,
+            'Email': self.email,
+            'Fecha de creación': self.created_at.isoformat()
         }

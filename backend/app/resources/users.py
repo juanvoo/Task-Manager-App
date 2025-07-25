@@ -10,12 +10,12 @@ class UserResource(Resource):
         
         # Solo permitir acceso al propio perfil
         if current_user_id != user_id:
-            return {'message': 'Access denied'}, 403
+            return {'message': 'Acceso denegado'}, 403
         
         user = User.query.get(user_id)
         if not user:
-            return {'message': 'User not found'}, 404
-        
+            return {'message': 'Usuario no encontrado'}, 404
+
         # Calcular estadísticas
         total_tasks = Task.query.filter_by(user_id=user_id).count()
         completed_tasks = Task.query.filter_by(
@@ -32,12 +32,12 @@ class UserResource(Resource):
         ).count()
         
         user_data = user.to_dict()
-        user_data['statistics'] = {
-            'total_tasks': total_tasks,
-            'completed_tasks': completed_tasks,
-            'pending_tasks': pending_tasks,
-            'in_progress_tasks': in_progress_tasks,
-            'completion_rate': round((completed_tasks / total_tasks * 100) if total_tasks > 0 else 0, 2)
+        user_data['Estadísticas'] = {
+            'Total de tareas': total_tasks,
+            'Tareas completadas': completed_tasks,
+            'Tareas pendientes': pending_tasks,
+            'Tareas en progreso': in_progress_tasks,
+            'Tasa de finalización': round((completed_tasks / total_tasks * 100) if total_tasks > 0 else 0, 2)
         }
         
-        return {'user': user_data}, 200
+        return {'Usuario': user_data}, 200
