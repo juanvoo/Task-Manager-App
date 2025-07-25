@@ -16,6 +16,10 @@ def create_app(config_name='development'):
     # Configuración
     app.config.from_object(f'app.config.{config_name.title()}Config')
     
+    @app.route('/')
+    def index():
+        return {'message': 'API funcionando correctamente', 'status': 'ok'}
+    
     # Inicializar extensiones
     db.init_app(app)
     migrate.init_app(app, db)
