@@ -51,4 +51,4 @@ class Task(db.Model):
         self.completed_at = None
     
     def __repr__(self):
-        return f'<Task {self.title}>'
+        return f'<Tarea {self.title}>'
