@@ -13,11 +13,11 @@ class AuthRegister(Resource):
         self.parser.add_argument('Nombre')
         self.parser.add_argument('Apellido')
 
-        def post(self):
-            args = self.parser.parse_args()
+    def post(self):
+        args = self.parser.parse_args()
 
-            if not validate_email(args['Email']):
-                return {'message': 'Email no válido'}, 400
+        if not validate_email(args['Email']):
+            return {'message': 'Email no válido'}, 400
             
             if User.query.filter_by(username=args['Nombre de Usuario']).first:
                 return{ 'message': 'El nombre de usuario ya está en uso'}, 409

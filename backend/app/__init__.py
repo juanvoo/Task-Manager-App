@@ -20,6 +20,10 @@ def create_app(config_name='development'):
     def index():
         return {'message': 'API funcionando correctamente', 'status': 'ok'}
     
+    @app.route('/test')
+    def test():
+        return {'message': 'Ruta de prueba funcionando', 'status': 'ok'}
+    
     # Inicializar extensiones
     db.init_app(app)
     migrate.init_app(app, db)
