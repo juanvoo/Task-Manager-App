@@ -26,7 +26,6 @@ def sample_user():
     }
 
 def test_register_user(client, sample_user):
-    """Test user registration"""
     response = client.post('/api/v1/auth/register',
                           data=json.dumps(sample_user),
                           content_type='application/json')
@@ -38,13 +37,15 @@ def test_register_user(client, sample_user):
     assert data['Usuario']['Nombre de usuario'] == sample_user['Nombre de usuario']
 
 def test_register_duplicate_user(client, sample_user):
-    """Test registration with duplicate username"""
-    # Register first user
+
+    # *** Test para registrar un usuario duplicado ***
+    
+    # Primero registra el usuario
     client.post('/api/v1/auth/register',
                 data=json.dumps(sample_user),
                 content_type='application/json')
     
-    # Try to register same user again
+    # Intenta registrar el mismo usuario nuevamente
     response = client.post('/api/v1/auth/register',
                           data=json.dumps(sample_user),
                           content_type='application/json')
@@ -54,13 +55,15 @@ def test_register_duplicate_user(client, sample_user):
     assert 'ya existe' in data['message']
 
 def test_login_user(client, sample_user):
-    """Test user login"""
-    # Register user first
+    
+    # *** Test para iniciar sesión con un usuario registrado ***
+    
+    # Primero, registra el usuario
     client.post('/api/v1/auth/register',
                 data=json.dumps(sample_user),
                 content_type='application/json')
-    
-    # Login
+
+    # Iniciar sesión
     login_data = {
         'Nombre de usuario': sample_user['Nombre de usuario'],
         'Contraseña': sample_user['Contraseña']
@@ -77,7 +80,10 @@ def test_login_user(client, sample_user):
     assert 'Usuario' in data
 
 def test_login_invalid_credentials(client, sample_user):
-    """Test login with invalid credentials"""
+    
+    # *** Test para iniciar sesión con credenciales inválidas ***
+    
+    # Primero, registra el usuario
     login_data = {
         'Nombre de usuario': 'No existe',
         'Contraseña': 'Contraseña Incorrecta'
