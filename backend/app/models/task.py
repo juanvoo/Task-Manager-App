@@ -25,7 +25,7 @@ class Task(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Foreign Key
+    # Relación con el modelo de usuario (FK)
     user_id = db.Column(db.Integer, db.ForeignKey('ID de usuario'), nullable=False)
 
     def to_dict(self):
