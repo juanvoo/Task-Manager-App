@@ -61,8 +61,6 @@ services:
       - backend
     networks:
       - taskmanager_network
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
 
 volumes:
   postgres_data:
