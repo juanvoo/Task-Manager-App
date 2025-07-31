@@ -10,6 +10,48 @@
 </head>
 <body>
     <!-- Aquí irá el contenido principal -->
+    <!-- Formulario de inicio de sesión -->
+    <form id="loginForm" class="auth-form active">
+        <h2>Iniciar Sesión</h2>
+        <div class="form-group">
+            <input type="text" id="loginUsername" placeholder="Usuario" required>
+                <i class="fas fa-user"></i>
+        </div>
+        <div class="form-group">
+            <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                <i class="fas fa-lock"></i>
+        </div>
+            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+    </form>
+
+        <!-- Formulario de registro -->
+        <form id="registerForm" class="auth-form">
+            <h2>Registrarse</h2>
+            <div class="form-group">
+                <input type="text" id="registerUsername" placeholder="Usuario" required>
+                <i class="fas fa-user"></i>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="registerEmail" placeholder="Email" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="registerFirstName" placeholder="Nombre">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="registerLastName" placeholder="Apellido">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerPassword" placeholder="Contraseña" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrarse</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts principales para luego -->
     <script src="assets/js/config.js"></script>
