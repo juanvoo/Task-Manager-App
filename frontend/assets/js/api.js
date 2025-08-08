@@ -1,6 +1,6 @@
-class Api {
-    constructor() {
-        this.baseUrl = config.apiUrl;
+export class API {
+    constructor(baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     // Método auxiliar para manejar las respuestas de la API
@@ -91,5 +91,3 @@ class Api {
         return this.handleResponse(response);
     }
 }
-
-const api = new Api();
