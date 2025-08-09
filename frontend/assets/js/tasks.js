@@ -1,93 +1,12 @@
-// Configuraciones y textos
-const CONFIG = {
-  TASK_STATUS: {
-    COMPLETED: "completed",
-    PENDING: "pending",
-    IN_PROGRESS: "in_progress",
-  },
-  TRANSLATIONS: {
-    status: {
-      completed: "Completada",
-      pending: "Pendiente",
-      in_progress: "En progreso",
-    },
-    priority: {
-      low: "Baja",
-      medium: "Media",
-      high: "Alta",
-    },
-  },
-  DEBOUNCE_DELAY: 300,
-}
+import CONFIG from './config.js';
+import { debounce } from './utils.js';
 
-// Evitar llamar muhas veces a una función
-const debounce = (func, delay) => {
-  let debounceTimer
-  return function () {
-    
-    const args = arguments
-    clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => func.apply(this, args), delay)
-  }
-}
-
-// Indicador de carga
-const showLoading = (isLoading) => {
-  const loadingElement = document.getElementById("loading")
-  if (loadingElement) {
-    loadingElement.style.display = isLoading ? "block" : "none"
-  }
-}
-
-// Mensajes flotantes
-const showToast = (message, type) => {
-  const toastElement = document.createElement("div")
-  toastElement.className = `toast toast-${type}`
-  toastElement.textContent = message
-  document.body.appendChild(toastElement)
-  setTimeout(() => document.body.removeChild(toastElement), 3000)
-}
-
-// Cerrar modales
-const closeModal = (modalId) => {
-  const modal = document.getElementById(modalId)
-  if (modal) {
-    modal.style.display = "none"
-  }
-}
-
-// Abrir modales
-const showModal = (modalId) => {
-  const modal = document.getElementById(modalId)
-  if (modal) {
-    modal.style.display = "block"
-  }
-}
-
-// Escapar HTML para evitar XSS
-const escapeHtml = (unsafe) => {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;")
-}
-
-// Muestra fechas
-const formatDate = (date) => {
-  return date.toLocaleDateString("es-ES", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  })
-}
-
-class TaskManager {
-  constructor() {
-    this.tasks = []
-    this.currentFilters = {}
-    this.init()
+export class TaskManager {
+  constructor(api) {
+    this.api = api;
+    this.tasks = [];
+    this.currentFilters = {};
+    this.init();
   }
 
   init() {
