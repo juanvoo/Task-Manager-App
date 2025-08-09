@@ -21,6 +21,7 @@ class TaskManagerApp {
 
     async init() {
         try {
+            this.hideLoading(); // Asegurarse de que el spinner esté oculto al inicio
             console.log('Iniciando aplicación...', this.auth);
             
             if (this.auth.isAuthenticated) {
