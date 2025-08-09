@@ -1,3 +1,16 @@
+// Retrasar la ejecución de funciones
+export function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // Mostrar spinner con ID
 export function showLoading() {
     const loading = document.getElementById('loading');
