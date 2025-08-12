@@ -3,33 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4A90E2">
     <title>Task Manager</title>
+    
+    <link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/components.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Registro del Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado con éxito:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Error al registrar el Service Worker:', error);
+                    });
+            });
+        }
+    </script>
 </head>
 <body>
-    <!-- Aquí irá el contenido principal -->
-    <!-- Formulario de inicio de sesión -->
-    <form id="loginForm" class="auth-form active">
-        <h2>Iniciar Sesión</h2>
-        <div class="form-group">
-            <input type="text" id="loginUsername" placeholder="Usuario" required>
-                <i class="fas fa-user"></i>
-        </div>
-        <div class="form-group">
-            <input type="password" id="loginPassword" placeholder="Contraseña" required>
-                <i class="fas fa-lock"></i>
-        </div>
-            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-    </form>
+    <!-- Spinner de Carga -->
+    <div id="loading" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
 
-        <!-- Formulario de registro -->
-        <form id="registerForm" class="auth-form">
-            <h2>Registrarse</h2>
-            <div class="form-group">
-                <input type="text" id="registerUsername" placeholder="Usuario" required>
-                <i class="fas fa-user"></i>
+    <!-- Modal de Autenticación -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="tab-btn active" data-tab="login">Iniciar Sesión</button>
+                    <button class="tab-btn" data-tab="register">Registrarse</button>
+                </div>
+
+                <!-- Formulario de Inicio de Sesión -->
+                <form id="loginForm" class="auth-form active">
+                    <h2>Iniciar Sesión</h2>
+                    <div class="form-group">
+                        <input type="text" id="loginUsername" placeholder="Usuario" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                </form>
+
+                <!-- Formulario de Registro -->
+                <form id="registerForm" class="auth-form">
+                    <h2>Registrarse</h2>
+                    <div class="form-group">
+                        <input type="text" id="registerUsername" placeholder="Usuario" required>
+                        <i class="fas fa-user"></i>
                     </div>
                     <div class="form-group">
                         <input type="email" id="registerEmail" placeholder="Email" required>
@@ -53,12 +89,182 @@
         </div>
     </div>
 
-    <!-- Scripts principales para luego -->
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/tasks.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/app.js"></script>
+    <!-- Aplicación Principal -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-tasks"></i> Task Manager</h1>
+                <div class="user-menu">
+                    <span id="userWelcome">Bienvenido, Usuario</span>
+                    <button id="logoutBtn" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Barra Lateral -->
+            <aside class="sidebar">
+                <div class="stats-card">
+                    <h3>Estadísticas</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Total:</span>
+                        <span id="totalTasks" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Completadas:</span>
+                        <span id="completedTasks" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Pendientes:</span>
+                        <span id="pendingTasks" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">En Progreso:</span>
+                        <span id="inProgressTasks" class="stat-value">0</span>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="filters-card">
+                    <h3>Filtros</h3>
+                    <div class="filter-group">
+                        <label>Estado:</label>
+                        <select id="statusFilter">
+                            <option value="">Todos</option>
+                            <option value="pending">Pendiente</option>
+                            <option value="in_progress">En Progreso</option>
+                            <option value="completed">Completada</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Prioridad:</label>
+                        <select id="priorityFilter">
+                            <option value="">Todas</option>
+                            <option value="high">Alta</option>
+                            <option value="medium">Media</option>
+                            <option value="low">Baja</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Ordenar por:</label>
+                        <select id="sortBy">
+                            <option value="created_at">Fecha de creación</option>
+                            <option value="due_date">Fecha límite</option>
+                            <option value="priority">Prioridad</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Orden:</label>
+                        <select id="sortOrder">
+                            <option value="desc">Descendente</option>
+                            <option value="asc">Ascendente</option>
+                        </select>
+                    </div>
+                    <button id="applyFilters" class="btn btn-primary">Aplicar Filtros</button>
+                </div>
+            </aside>
+
+            <!-- Área de Contenido -->
+            <div class="content-area">
+                <!-- Formulario de Tarea -->
+                <div class="task-form-card">
+                    <h3>Nueva Tarea</h3>
+                    <form id="taskForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="taskTitle" placeholder="Título de la tarea" required>
+                            </div>
+                            <div class="form-group">
+                                <select id="taskPriority">
+                                    <option value="low">Baja</option>
+                                    <option value="medium" selected>Media</option>
+                                    <option value="high">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="taskDescription" placeholder="Descripción (opcional)" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <input type="datetime-local" id="taskDueDate">
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Crear Tarea
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de Tareas -->
+                <div class="tasks-container">
+                    <div class="tasks-header">
+                        <h3>Mis Tareas</h3>
+                        <button id="refreshTasks" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                    <div id="tasksList" class="tasks-list">
+                        <!-- Las tareas se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Edición de Tarea -->
+    <div id="editTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Editar Tarea</h3>
+            <form id="editTaskForm">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <label>Título:</label>
+                    <input type="text" id="editTaskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea id="editTaskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado:</label>
+                        <select id="editTaskStatus">
+                            <option value="pending">Pendiente</option>
+                            <option value="in_progress">En Progreso</option>
+                            <option value="completed">Completada</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridad:</label>
+                        <select id="editTaskPriority">
+                            <option value="low">Baja</option>
+                            <option value="medium">Media</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Fecha límite:</label>
+                    <input type="datetime-local" id="editTaskDueDate">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editTaskModal')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/config.js" type="module"></script>
+    <script src="assets/js/utils.js" type="module"></script>
+    <script src="assets/js/api.js" type="module"></script>
+    <script src="assets/js/auth.js" type="module"></script>
+    <script src="assets/js/tasks.js" type="module"></script>
+    <script src="assets/js/app.js" type="module"></script>
 </body>
 </html>
