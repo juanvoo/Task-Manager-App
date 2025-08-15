@@ -55,12 +55,34 @@ class TaskManagerApp {
     }
 
     setupEventListeners() {
+        console.log('Configurando event listeners...');
+
+        // Manejo de pestañas de autenticación
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                console.log('Tab clicked:', button.dataset.tab);
+                // Remover active de todos los botones y formularios
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+                
+                // Activar el botón y formulario seleccionado
+                button.classList.add('active');
+                const formId = button.dataset.tab + 'Form';
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.classList.add('active');
+                }
+            });
+        });
 
         // Formulario de login
         const loginForm = document.getElementById('loginForm');
         if (loginForm) {
+            console.log('Formulario de login encontrado, agregando event listener...');
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                console.log('Intento de login...');
                 const username = document.getElementById('loginUsername').value;
                 const password = document.getElementById('loginPassword').value;
                 
