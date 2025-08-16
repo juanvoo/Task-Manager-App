@@ -8,14 +8,22 @@ export class API {
         const data = await response.json();
         
         if (!response.ok) {
-            throw new Error(data.message || 'Ha ocurrido un error');
+            const error = new Error(typeof data === 'object' ? JSON.stringify(data) : data.message || 'Ha ocurrido un error');
+            error.status = response.status;
+            error.data = data;
+            console.error('API Error:', {
+                status: response.status,
+                data: data,
+                url: response.url
+            });
+            throw error;
         }
         
         return data;
     }
 
     // Método auxiliar para construir las opciones de la petición
-    buildOptions(method, body = null, requiresAuth = true) {
+    buildRequestOptions(method, data = null) {
         const options = {
             method,
             headers: {
@@ -23,71 +31,32 @@ export class API {
             }
         };
 
-        // Convertir cuerpo a JSON
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
-
-        // Token para autenticación
-        if (requiresAuth) {
-            const token = localStorage.getItem('token');
-            if (token) {
-                options.headers['Authorization'] = `Bearer ${token}`;
-            }
+        if (data) {
+            options.body = JSON.stringify(data);
         }
 
         return options;
     }
 
-    // Endpoints de Autenticación
-    async login(username, password) {
-        const response = await fetch(`${this.baseUrl}/auth/login`, this.buildOptions('POST', { username, password }, false));
+    // Métodos HTTP
+    async get(endpoint) {
+        const response = await fetch(`${this.baseUrl}${endpoint}`, this.buildRequestOptions('GET'));
         return this.handleResponse(response);
     }
 
-    async register(userData) {
-        const response = await fetch(`${this.baseUrl}/auth/register`, this.buildOptions('POST', userData, false));
+    async post(endpoint, data) {
+        console.log('Making POST request to:', `${this.baseUrl}${endpoint}`, 'with data:', data);
+        const response = await fetch(`${this.baseUrl}${endpoint}`, this.buildRequestOptions('POST', data));
         return this.handleResponse(response);
     }
 
-    async logout() {
-        localStorage.removeItem('token');
-    }
-
-    // Endpoints para las Tareas
-    async getTasks() {
-        const response = await fetch(`${this.baseUrl}/tasks`, this.buildOptions('GET'));
+    async put(endpoint, data) {
+        const response = await fetch(`${this.baseUrl}${endpoint}`, this.buildRequestOptions('PUT', data));
         return this.handleResponse(response);
     }
 
-    async createTask(taskData) {
-        const response = await fetch(`${this.baseUrl}/tasks`, this.buildOptions('POST', taskData));
-        return this.handleResponse(response);
-    }
-
-    async updateTask(taskId, taskData) {
-        const response = await fetch(`${this.baseUrl}/tasks/${taskId}`, this.buildOptions('PUT', taskData));
-        return this.handleResponse(response);
-    }
-
-    async deleteTask(taskId) {
-        const response = await fetch(`${this.baseUrl}/tasks/${taskId}`, this.buildOptions('DELETE'));
-        return this.handleResponse(response);
-    }
-
-    async completeTask(taskId) {
-        const response = await fetch(`${this.baseUrl}/tasks/${taskId}/complete`, this.buildOptions('PUT'));
-        return this.handleResponse(response);
-    }
-
-    // Endpoints de Usuario
-    async getCurrentUser() {
-        const response = await fetch(`${this.baseUrl}/users/me`, this.buildOptions('GET'));
-        return this.handleResponse(response);
-    }
-
-    async updateUserProfile(userData) {
-        const response = await fetch(`${this.baseUrl}/users/me`, this.buildOptions('PUT', userData));
+    async delete(endpoint) {
+        const response = await fetch(`${this.baseUrl}${endpoint}`, this.buildRequestOptions('DELETE'));
         return this.handleResponse(response);
     }
 }

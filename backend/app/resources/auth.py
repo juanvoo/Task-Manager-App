@@ -14,21 +14,22 @@ class AuthRegister(Resource):
         self.parser.add_argument('Apellido')
 
     def post(self):
-        args = self.parser.parse_args()
+        try:
+            args = self.parser.parse_args()
 
-        if not validate_email(args['Email']):
-            return {'message': 'Email no válido'}, 400
+            if not validate_email(args['Email']):
+                return {'message': 'Email no válido'}, 400
             
-            if User.query.filter_by(username=args['Nombre de Usuario']).first:
-                return{ 'message': 'El nombre de usuario ya está en uso'}, 409
+            if User.query.filter_by(username=args['Nombre de Usuario']).first():
+                return {'message': 'El nombre de usuario ya está en uso'}, 409
             
             if User.query.filter_by(email=args['Email']).first():
                 return {'message': 'El email ya está en uso'}, 409
             
-            user=User (
+            user = User(
                 username=args['Nombre de Usuario'],
                 email=args['Email'],
-                first_name = args.get('Nombre'),
+                first_name=args.get('Nombre'),
                 last_name=args.get('Apellido')
             )
             user.set_password(args['Contraseña'])
@@ -36,32 +37,38 @@ class AuthRegister(Resource):
             db.session.add(user)
             db.session.commit()
 
-            return{
+            return {
                 'message': 'Usuario creado exitosamente',
                 'Usuario': user.to_dict()
             }, 201
-        
+            
+        except Exception as e:
+            return {'message': f'Error: {str(e)}'}, 500
+
 class AuthLogin(Resource):
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('Nombre de usuario', requiered = True, help= 'Nombre de usuario es requerido')
-        self.parser.add_arguement('Contraseña', requiered = True, help = 'La contraseña es requerida')
+        self.parser.add_argument('Nombre de Usuario', required=True, help='Nombre de usuario es requerido')
+        self.parser.add_argument('Contraseña', required=True, help='La contraseña es requerida')
 
-        def post(self):
+    def post(self):
+        try:
             args = self.parser.parse_args()
 
-            user = User.query.filter_by(username = args ['Nombre de usuario']).first()
+            user = User.query.filter_by(username=args['Nombre de Usuario']).first()
 
-            if user and user.check_password(args ['Contraseña']) and user.is_active:
-                acces_token = create_access_token(identity = user.id)
-                refresh_token = create_refresh_token (identity = user.id)
+            if user and user.check_password(args['Contraseña']) and user.is_active:
+                access_token = create_access_token(identity=user.id)
+                refresh_token = create_refresh_token(identity=user.id)
 
                 return {
                     'message': 'Inicio de sesión exitoso',
-                    'access_token': acces_token,
+                    'access_token': access_token,
                     'refresh_token': refresh_token,
                     'Usuario': user.to_dict()
                 }, 200
             
             return {'message': 'Nombre de usuario o contraseña incorrectos'}, 401
             
+        except Exception as e:
+            return {'message': f'Error: {str(e)}'}, 500

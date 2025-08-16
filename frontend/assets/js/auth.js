@@ -1,3 +1,4 @@
+// frontend/assets/js/auth.js - CORREGIDO
 import { API } from './api.js';
 import CONFIG from './config.js';
 
@@ -23,7 +24,7 @@ export class Auth {
     async login(username, password) {
         try {
             const response = await this.api.post('/auth/login', {
-                'Nombre de usuario': username,
+                'Nombre de Usuario': username,  // ✅ Exactamente como espera el backend
                 'Contraseña': password
             });
 
@@ -43,7 +44,16 @@ export class Auth {
 
     async register(userData) {
         try {
-            const response = await this.api.post('/auth/register', userData);
+            const formattedData = {
+                'Nombre de Usuario': userData.username,  // ✅ Exactamente como espera el backend
+                'Email': userData.email,                 // ✅ No "Correo electrónico"
+                'Contraseña': userData.password,
+                'Nombre': userData.first_name,
+                'Apellido': userData.last_name
+            };
+            
+            console.log('Sending registration data:', formattedData);
+            const response = await this.api.post('/auth/register', formattedData);
             return response;
         } catch (error) {
             console.error('Error en registro:', error);
