@@ -3,40 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#4A90E2">
-    <title>Task Manager</title>
-    
-    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-    
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Estilos -->
+    <title>Task Manager - Gestión de Tareas</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/components.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-    <!-- Registro del Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registrado con éxito:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Error al registrar el Service Worker:', error);
-                    });
-            });
-        }
-    </script>
 </head>
 <body>
-    <!-- Spinner de Carga -->
-    <div id="loading" class="loading-overlay" style="display: none;">
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading-overlay">
         <div class="spinner"></div>
     </div>
 
-    <!-- Modal de Autenticación -->
+    <!-- Login/Register Modal -->
     <div id="authModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -45,8 +23,8 @@
                     <button class="tab-btn active" data-tab="login">Iniciar Sesión</button>
                     <button class="tab-btn" data-tab="register">Registrarse</button>
                 </div>
-
-                <!-- Formulario de Inicio de Sesión -->
+                
+                <!-- Login Form -->
                 <form id="loginForm" class="auth-form active">
                     <h2>Iniciar Sesión</h2>
                     <div class="form-group">
@@ -59,8 +37,8 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                 </form>
-
-                <!-- Formulario de Registro -->
+                
+                <!-- Register Form -->
                 <form id="registerForm" class="auth-form">
                     <h2>Registrarse</h2>
                     <div class="form-group">
@@ -89,7 +67,7 @@
         </div>
     </div>
 
-    <!-- Aplicación Principal -->
+    <!-- Main App -->
     <div id="app" class="app-container" style="display: none;">
         <!-- Header -->
         <header class="header">
@@ -104,9 +82,9 @@
             </div>
         </header>
 
-        <!-- Contenido Principal -->
+        <!-- Main Content -->
         <main class="main-content">
-            <!-- Barra Lateral -->
+            <!-- Sidebar -->
             <aside class="sidebar">
                 <div class="stats-card">
                     <h3>Estadísticas</h3>
@@ -128,7 +106,7 @@
                     </div>
                 </div>
 
-                <!-- Filtros -->
+                <!-- Filters -->
                 <div class="filters-card">
                     <h3>Filtros</h3>
                     <div class="filter-group">
@@ -168,9 +146,9 @@
                 </div>
             </aside>
 
-            <!-- Área de Contenido -->
+            <!-- Content Area -->
             <div class="content-area">
-                <!-- Formulario de Tarea -->
+                <!-- Task Form -->
                 <div class="task-form-card">
                     <h3>Nueva Tarea</h3>
                     <form id="taskForm">
@@ -198,7 +176,7 @@
                     </form>
                 </div>
 
-                <!-- Lista de Tareas -->
+                <!-- Tasks List -->
                 <div class="tasks-container">
                     <div class="tasks-header">
                         <h3>Mis Tareas</h3>
@@ -207,14 +185,14 @@
                         </button>
                     </div>
                     <div id="tasksList" class="tasks-list">
-                        <!-- Las tareas se cargarán aquí -->
+                        <!-- Tasks will be loaded here -->
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modal de Edición de Tarea -->
+    <!-- Task Edit Modal -->
     <div id="editTaskModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -259,12 +237,30 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="assets/js/config.js" type="module"></script>
-    <script src="assets/js/utils.js" type="module"></script>
-    <script src="assets/js/api.js" type="module"></script>
-    <script src="assets/js/auth.js" type="module"></script>
-    <script src="assets/js/tasks.js" type="module"></script>
-    <script src="assets/js/app.js" type="module"></script>
+    <!-- Scripts - ORDEN CRÍTICO -->
+    <script>
+      console.log("🚀 Iniciando carga de scripts...")
+    </script>
+    <script src="assets/js/utils.js"></script>
+    <script>
+      console.log("✅ Utils cargado, verificando funciones:", typeof window.showLoading)
+    </script>
+    <script src="assets/js/api.js"></script>
+    <script>
+      console.log("✅ API cargado, verificando:", typeof window.api)
+    </script>
+    <script src="assets/js/auth.js"></script>
+    <script>
+      console.log("✅ Auth cargado, verificando:", typeof window.auth)
+    </script>
+    <script src="assets/js/tasks.js"></script>
+    <script>
+      console.log("✅ Tasks cargado, verificando:", typeof window.taskManager)
+    </script>
+    <script src="assets/js/app.js"></script>
+    <script>
+      console.log("✅ App cargado, verificando:", typeof window.app)
+      console.log("🎉 Todos los scripts cargados correctamente!")
+    </script>
 </body>
 </html>
