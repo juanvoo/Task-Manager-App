@@ -1,74 +1,92 @@
-import { Auth } from './auth.js';
-import { TaskManager } from './tasks.js';
+import { Auth } from "./auth.js";
+import { TaskManager } from "./tasks.js";
 
-class TaskManagerApp {
-    constructor() {
-        this.auth = new Auth();
-        this.taskManager = null;
+const auth = new Auth();
+const app = document.getElementById("app");
+
+function renderLogin() {
+  app.innerHTML = `
+    <h2>Iniciar Sesión</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Usuario" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <p>¿No tienes cuenta? <a href="#" id="goRegister">Regístrate aquí</a></p>
+  `;
+
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      await auth.login(username, password);
+      renderTasks();
+    } catch {
+      alert("Credenciales incorrectas");
     }
+  });
 
-    async init() {
-        console.log("Iniciando aplicación...");
-
-        if (this.auth.isAuthenticated) {
-            console.log("Usuario autenticado, cargando aplicación...");
-            this.loadApp();
-        } else {
-            console.log("Usuario no autenticado");
-        }
-
-        this.setupEventListeners();
-    }
-
-    async loadApp() {
-        try {
-            this.taskManager = new TaskManager();
-            await this.taskManager.loadTasks();
-        } catch (error) {
-            console.error("Error al cargar aplicación:", error);
-        }
-    }
-
-    setupEventListeners() {
-        const loginForm = document.getElementById("loginForm");
-        if (loginForm) {
-            loginForm.addEventListener("submit", async e => {
-                e.preventDefault();
-                const username = document.getElementById("loginUsername").value;
-                const password = document.getElementById("loginPassword").value;
-
-                try {
-                    await this.auth.login(username, password);
-                    this.loadApp();
-                } catch (error) {
-                    alert("Error en login");
-                }
-            });
-        }
-
-        const registerForm = document.getElementById("registerForm");
-        if (registerForm) {
-            registerForm.addEventListener("submit", async e => {
-                e.preventDefault();
-                const userData = {
-                    username: document.getElementById("registerUsername").value,
-                    email: document.getElementById("registerEmail").value,
-                    password: document.getElementById("registerPassword").value,
-                    first_name: document.getElementById("registerFirstName").value,
-                    last_name: document.getElementById("registerLastName").value,
-                };
-                try {
-                    await this.auth.register(userData);
-                    alert("Registro exitoso. Inicia sesión.");
-                } catch (error) {
-                    alert("Error en registro");
-                }
-            });
-        }
-    }
+  document.getElementById("goRegister").addEventListener("click", (e) => {
+    e.preventDefault();
+    renderRegister();
+  });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    window.app = new TaskManagerApp();
-    window.app.init();
-});
+function renderRegister() {
+  app.innerHTML = `
+    <h2>Registro</h2>
+    <form id="registerForm">
+      <input type="text" id="username" placeholder="Usuario" required>
+      <input type="email" id="email" placeholder="Correo" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Registrarse</button>
+    </form>
+    <p>¿Ya tienes cuenta? <a href="#" id="goLogin">Inicia sesión aquí</a></p>
+  `;
+
+  document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const userData = {
+      username: document.getElementById("username").value,
+      email: document.getElementById("email").value,
+      password: document.getElementById("password").value
+    };
+
+    try {
+      await auth.register(userData);
+      alert("Registro exitoso, ahora puedes iniciar sesión");
+      renderLogin();
+    } catch {
+      alert("Error al registrarse");
+    }
+  });
+
+  document.getElementById("goLogin").addEventListener("click", (e) => {
+    e.preventDefault();
+    renderLogin();
+  });
+}
+
+async function renderTasks() {
+  const taskManager = new TaskManager(auth);
+  app.innerHTML = `
+    <h2>Tus Tareas</h2>
+    <button id="logoutBtn">Cerrar Sesión</button>
+    <div id="tasks"></div>
+  `;
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    auth.logout();
+    renderLogin();
+  });
+
+  await taskManager.loadTasks();
+}
+
+if (auth.isAuthenticated) {
+  renderTasks();
+} else {
+  renderLogin();
+}

@@ -23,19 +23,21 @@ export class Auth {
     async login(username, password) {
         try {
             const response = await this.api.post('/auth/login', {
-                username,
-                password
+                'Nombre de usuario': username,
+                'Nombre de Usuario': username,  // ✅ Exactamente como espera el backend
+                'Contraseña': password
             });
 
-            this._token = response.access_token;
-            this._userData = response.user;
-
-            localStorage.setItem('token', this._token);
-            localStorage.setItem('userData', JSON.stringify(this._userData));
-
-            return response;
+            if (response.access_token) {
+                this._token = response.access_token;
+                this._userData = response.Usuario;
+                localStorage.setItem(CONFIG.AUTH_TOKEN_KEY, this._token);
+                localStorage.setItem(CONFIG.USER_DATA_KEY, JSON.stringify(this._userData));
+                return true;
+            }
+            return false;
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('Error en login:', error);
             throw error;
         }
     }
@@ -43,9 +45,17 @@ export class Auth {
     async register(userData) {
         try {
             const response = await this.api.post('/auth/register', userData);
-            return response;
+            const formattedData = {
+                'Nombre de Usuario': userData.username,  // ✅ Exactamente como espera el backend
+                'Email': userData.email,                 // ✅ No "Correo electrónico"
+                'Contraseña': userData.password,
+                'Nombre': userData.first_name,
+                'Apellido': userData.last_name
+            };
+            const result = await this.api.post('/auth/register', formattedData);
+            return result;
         } catch (error) {
-            console.error('Register error:', error);
+            console.error('Error en registro:', error);
             throw error;
         }
     }
@@ -53,7 +63,7 @@ export class Auth {
     logout() {
         this._token = null;
         this._userData = null;
-        localStorage.removeItem('token');
-        localStorage.removeItem('userData');
+        localStorage.removeItem(CONFIG.AUTH_TOKEN_KEY);
+        localStorage.removeItem(CONFIG.USER_DATA_KEY);
     }
 }
