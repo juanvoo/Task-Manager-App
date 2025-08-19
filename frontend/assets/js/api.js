@@ -1,137 +1,69 @@
-// Cliente API para comunicación con el backend
-class APIClient {
-  constructor() {
-    this.baseURL = "http://localhost:5000/api/v1"
-    this.timeout = 10000
-  }
+import { CONFIG } from "./config.js";
 
-  // Obtener token de autenticación
-  getAuthToken() {
-    return localStorage.getItem("task_manager_token")
-  }
-
-  // Configurar headers por defecto
-  getDefaultHeaders() {
-    const headers = {
-      "Content-Type": "application/json",
+export class API {
+    constructor(baseUrl) {
+        this.baseUrl = baseUrl;
+        this.defaultHeaders = {
+            'Content-Type': 'application/json'
+        };
     }
 
-    const token = this.getAuthToken()
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`
+    async request(endpoint, options = {}) {
+        const url = `${this.baseUrl}${endpoint}`;
+        const config = {
+            headers: { ...this.defaultHeaders },
+            ...options
+        };
+
+        // Agregar token de autenticación si existe
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        console.log(`Making ${config.method || 'GET'} request to: ${url}`, config);
+
+        try {
+            const response = await fetch(url, config);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Error en la solicitud');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
     }
 
-    return headers
-  }
+    async get(endpoint, params = {}) {
+        const url = new URL(`${this.baseUrl}${endpoint}`);
+        Object.keys(params).forEach(key => {
+            if (params[key] !== undefined) {
+                url.searchParams.append(key, params[key]);
+            }
+        });
 
-  // Método genérico para hacer peticiones
-  async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`
-    const config = {
-      headers: this.getDefaultHeaders(),
-      ...options,
+        return this.request(url.pathname + url.search, { method: 'GET' });
     }
 
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this.timeout)
-
-      const response = await fetch(url, {
-        ...config,
-        signal: controller.signal,
-      })
-
-      clearTimeout(timeoutId)
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new APIError(errorData.message || `HTTP ${response.status}`, response.status, errorData)
-      }
-
-      return await response.json()
-    } catch (error) {
-      if (error.name === "AbortError") {
-        throw new APIError("Request timeout", 408)
-      }
-
-      if (error instanceof APIError) {
-        throw error
-      }
-
-      throw new APIError("Network error", 0, error)
+    async post(endpoint, data = {}) {
+        return this.request(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
     }
-  }
 
-  // Métodos HTTP
-  async get(endpoint, params = {}) {
-    const queryString = new URLSearchParams(params).toString()
-    const url = queryString ? `${endpoint}?${queryString}` : endpoint
-    return this.request(url, { method: "GET" })
-  }
+    async put(endpoint, data = {}) {
+        return this.request(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
 
-  async post(endpoint, data = {}) {
-    return this.request(endpoint, {
-      method: "POST",
-      body: JSON.stringify(data),
-    })
-  }
-
-  async put(endpoint, data = {}) {
-    return this.request(endpoint, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    })
-  }
-
-  async delete(endpoint) {
-    return this.request(endpoint, { method: "DELETE" })
-  }
-
-  // Métodos específicos de autenticación
-  async login(username, password) {
-    return this.post("/auth/login", { username, password })
-  }
-
-  async register(userData) {
-    return this.post("/auth/register", userData)
-  }
-
-  // Métodos específicos de tareas
-  async getTasks(filters = {}) {
-    return this.get("/tasks", filters)
-  }
-
-  async createTask(taskData) {
-    return this.post("/tasks", taskData)
-  }
-
-  async getTask(taskId) {
-    return this.get(`/tasks/${taskId}`)
-  }
-
-  async updateTask(taskId, taskData) {
-    return this.put(`/tasks/${taskId}`, taskData)
-  }
-
-  async deleteTask(taskId) {
-    return this.delete(`/tasks/${taskId}`)
-  }
-
-  // Métodos específicos de usuarios
-  async getUserProfile(userId) {
-    return this.get(`/users/${userId}`)
-  }
+    async delete(endpoint) {
+        return this.request(endpoint, { method: 'DELETE' });
+    }
 }
-
-// Clase para errores de API
-class APIError extends Error {
-  constructor(message, status, data = {}) {
-    super(message)
-    this.name = "APIError"
-    this.status = status
-    this.data = data
-  }
-}
-
-// Instancia global del cliente API
-window.api = new APIClient()
