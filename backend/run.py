@@ -1,8 +1,40 @@
 import os
-from app import create_app, db
+from app import db
 from flask_migrate import upgrade
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-app = create_app(os.getenv('FLASK_ENV', 'development'))
+app = Flask(__name__)
+
+# Configuración de CORS
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
+# Rutas de tu API
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    # Aquí procesarías los datos del registro
+    print(f"Recibido: {data}")
+    return jsonify({
+        "status": "success",
+        "message": "Usuario registrado correctamente"
+    }), 201
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    # Aquí procesarías el login
+    print(f"Login intento: {data}")
+    return jsonify({
+        "status": "success",
+        "message": "Login exitoso"
+    })
 
 @app.cli.command()
 def deploy():

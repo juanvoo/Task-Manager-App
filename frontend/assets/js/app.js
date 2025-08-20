@@ -1,36 +1,54 @@
 import Auth from "./auth.js";
 
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+  // 🚀 Registro
+  const registerForm = document.getElementById("registerForm");
+  if (registerForm) {
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  const userData = {
-    username: document.getElementById("username").value,
-    email: document.getElementById("email").value,
-    password: document.getElementById("password").value,
-    first_name: document.getElementById("firstName").value,
-    last_name: document.getElementById("lastName").value
-  };
+      const userData = {
+        username: document.getElementById("username").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value.trim(),
+        first_name: document.getElementById("firstName").value.trim(),
+        last_name: document.getElementById("lastName").value.trim(),
+      };
 
-  try {
-    const result = await Auth.register(userData);
-    alert("Registro exitoso: " + JSON.stringify(result));
-  } catch (error) {
-    alert("Error en registro: " + error);
+      try {
+        console.log("📤 Enviando registro:", userData);
+        const response = await Auth.register(userData);
+        alert("✅ Usuario registrado con éxito");
+        console.log("➡️ Respuesta del servidor:", response);
+        registerForm.reset();
+      } catch (error) {
+        console.error("❌ Error en registro:", error);
+        alert("⚠️ Error al registrar usuario");
+      }
+    });
   }
-});
 
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+  // 🚀 Login
+  const loginForm = document.getElementById("loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  const credentials = {
-    username: document.getElementById("loginUsername").value,
-    password: document.getElementById("loginPassword").value
-  };
+      const credentials = {
+        email: document.getElementById("loginEmail").value.trim(),
+        password: document.getElementById("loginPassword").value.trim(),
+      };
 
-  try {
-    const result = await Auth.login(credentials);
-    alert("Login exitoso: " + JSON.stringify(result));
-  } catch (error) {
-    alert("Error en login: " + error);
+      try {
+        console.log("📤 Enviando login:", credentials);
+        const response = await Auth.login(credentials);
+        alert("✅ Login exitoso");
+        console.log("➡️ Respuesta del servidor:", response);
+        loginForm.reset();
+      } catch (error) {
+        console.error("❌ Error en login:", error);
+        alert("⚠️ Error en login");
+      }
+    });
   }
 });

@@ -1,30 +1,33 @@
-const API_URL = "http://localhost:5000/api/v1";
-
-export class API {
-  async handleResponse(response, url) {
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(JSON.stringify({
-        status: response.status,
-        data: errorData,
-        url
-      }));
-    }
-    return response.json();
+class API {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
   }
 
-  async post(endpoint, data) {
-    const url = `${API_URL}${endpoint}`;
-    console.log("📡 Making POST request to:", url, "with data:", data);
+  async request(endpoint, method = "GET", body = null, headers = {}) {
+    const config = { method, headers: { "Content-Type": "application/json", ...headers } };
+    if (body) config.body = JSON.stringify(body);
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+    const response = await fetch(`${this.baseURL}${endpoint}`, config);
+    if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+    return await response.json();
+  }
 
-    return this.handleResponse(response, url);
+  get(endpoint) {
+    return this.request(endpoint, "GET");
+  }
+
+  post(endpoint, body) {
+    return this.request(endpoint, "POST", body);
+  }
+
+  put(endpoint, body) {
+    return this.request(endpoint, "PUT", body);
+  }
+
+  delete(endpoint) {
+    return this.request(endpoint, "DELETE");
   }
 }
 
-export default new API();
+// ✅ Exportamos la CLASE, no la instancia
+export default API;
