@@ -20,45 +20,45 @@ export class Auth {
         return this._userData;
     }
 
-    async login(username, password) {
-        try {
-            const response = await this.api.post('/auth/login', {
-                'Nombre de usuario': username,
-                'Nombre de Usuario': username,  // ✅ Exactamente como espera el backend
-                'Contraseña': password
-            });
+    async login(credentials) {
+    try {
+      const data = {
+        username: credentials.username,
+        password: credentials.password
+      };
 
-            if (response.access_token) {
-                this._token = response.access_token;
-                this._userData = response.Usuario;
-                localStorage.setItem(CONFIG.AUTH_TOKEN_KEY, this._token);
-                localStorage.setItem(CONFIG.USER_DATA_KEY, JSON.stringify(this._userData));
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error('Error en login:', error);
-            throw error;
-        }
+      console.log("📤 Enviando login:", data);
+
+      const response = await API.post("/auth/login", data);
+      console.log("✅ Login exitoso:", response);
+      return response;
+    } catch (error) {
+      console.error("❌ Error en login:", error);
+      throw error;
     }
+  }
 
     async register(userData) {
-        try {
-            const response = await this.api.post('/auth/register', userData);
-            const formattedData = {
-                'Nombre de Usuario': userData.username,  // ✅ Exactamente como espera el backend
-                'Email': userData.email,                 // ✅ No "Correo electrónico"
-                'Contraseña': userData.password,
-                'Nombre': userData.first_name,
-                'Apellido': userData.last_name
-            };
-            const result = await this.api.post('/auth/register', formattedData);
-            return result;
-        } catch (error) {
-            console.error('Error en registro:', error);
-            throw error;
-        }
+    try {
+      // 🚀 Nos aseguramos de que tenga todos los campos
+      const data = {
+        username: userData.username,
+        email: userData.email,
+        password: userData.password,
+        first_name: userData.first_name || "",
+        last_name: userData.last_name || ""
+      };
+
+      console.log("📤 Enviando registro:", data);
+
+      const response = await API.post("/auth/register", data);
+      console.log("✅ Registro exitoso:", response);
+      return response;
+    } catch (error) {
+      console.error("❌ Error en registro:", error);
+      throw error;
     }
+  }
 
     logout() {
         this._token = null;
@@ -67,3 +67,5 @@ export class Auth {
         localStorage.removeItem(CONFIG.USER_DATA_KEY);
     }
 }
+
+export default new Auth();
