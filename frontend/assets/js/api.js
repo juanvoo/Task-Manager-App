@@ -6,28 +6,26 @@ class API {
   async request(endpoint, method = "GET", body = null, headers = {}) {
     const config = { method, headers: { "Content-Type": "application/json", ...headers } };
     if (body) config.body = JSON.stringify(body);
-
     const response = await fetch(`${this.baseURL}${endpoint}`, config);
     if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
     return await response.json();
   }
 
-  get(endpoint) {
-    return this.request(endpoint, "GET");
+  get(endpoint, headers = {}) {
+    return this.request(endpoint, "GET", null, headers);
   }
 
-  post(endpoint, body) {
-    return this.request(endpoint, "POST", body);
+  post(endpoint, body, headers = {}) {
+    return this.request(endpoint, "POST", body, headers);
   }
 
-  put(endpoint, body) {
-    return this.request(endpoint, "PUT", body);
+  put(endpoint, body, headers = {}) {
+    return this.request(endpoint, "PUT", body, headers);
   }
 
-  delete(endpoint) {
-    return this.request(endpoint, "DELETE");
+  delete(endpoint, headers = {}) {
+    return this.request(endpoint, "DELETE", null, headers);
   }
 }
 
-// ✅ Exportamos la CLASE, no la instancia
 export default API;

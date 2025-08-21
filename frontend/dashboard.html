@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Mis Tareas</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Mis Tareas</h1>
+      <div class="user-info">
+        <span id="userName">Usuario</span>
+        <button id="logoutBtn">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="task-actions">
+        <button id="newTaskBtn">Nueva Tarea</button>
+        <div class="filters">
+          <select id="statusFilter">
+            <option value="all">Todas</option>
+            <option value="pending">Pendientes</option>
+            <option value="in-progress">En Progreso</option>
+            <option value="completed">Completadas</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="tasksContainer" class="tasks-grid">
+        <!-- Las tareas se cargarán dinámicamente aquí -->
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal para nueva tarea -->
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Nueva Tarea</h2>
+      <form id="taskForm">
+        <input type="hidden" id="taskId">
+        <div class="form-group">
+          <label for="taskTitle">Título</label>
+          <input type="text" id="taskTitle" required>
+        </div>
+        <div class="form-group">
+          <label for="taskDescription">Descripción</label>
+          <textarea id="taskDescription" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="taskStatus">Estado</label>
+          <select id="taskStatus">
+            <option value="pending">Pendiente</option>
+            <option value="in-progress">En Progreso</option>
+            <option value="completed">Completada</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="taskDueDate">Fecha límite</label>
+          <input type="date" id="taskDueDate">
+        </div>
+        <button type="submit">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+    <script type="module" src="assets/js/api.js"></script>
+    <script type="module" src="assets/js/auth.js"></script>
+    <script type="module" src="assets/js/dashboard.js"></script>
+</body>
+</html>

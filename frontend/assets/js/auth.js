@@ -1,6 +1,6 @@
+// Importar la clase API
 import API from "./api.js";
 
-// ✅ Creamos una instancia aquí
 const api = new API("http://localhost:5000/api");
 
 class Auth {
@@ -14,6 +14,38 @@ class Auth {
 
   static async getProfile(token) {
     return await api.get("/profile", {
+      Authorization: `Bearer ${token}`,
+    });
+  }
+
+  // Métodos para tareas
+  static async getTasks(token, status = 'all') {
+    const endpoint = status === 'all' ? '/tasks' : `/tasks?status=${status}`;
+    return await api.get(endpoint, {
+      Authorization: `Bearer ${token}`,
+    });
+  }
+
+  static async getTask(token, taskId) {
+    return await api.get(`/tasks/${taskId}`, {
+      Authorization: `Bearer ${token}`,
+    });
+  }
+
+  static async createTask(token, taskData) {
+    return await api.post("/tasks", taskData, {
+      Authorization: `Bearer ${token}`,
+    });
+  }
+
+  static async updateTask(token, taskId, taskData) {
+    return await api.put(`/tasks/${taskId}`, taskData, {
+      Authorization: `Bearer ${token}`,
+    });
+  }
+
+  static async deleteTask(token, taskId) {
+    return await api.delete(`/tasks/${taskId}`, {
       Authorization: `Bearer ${token}`,
     });
   }

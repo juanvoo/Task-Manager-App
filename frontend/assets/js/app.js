@@ -44,6 +44,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const response = await Auth.login(credentials);
         alert("✅ Login exitoso");
         console.log("➡️ Respuesta del servidor:", response);
+
+        // Guardar el token de autenticación
+     if (response.token) {
+      localStorage.setItem('authToken', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+    }
+  
+      window.location.href = 'dashboard.html';
+
         loginForm.reset();
       } catch (error) {
         console.error("❌ Error en login:", error);
