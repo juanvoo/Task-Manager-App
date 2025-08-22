@@ -20,11 +20,12 @@ class Auth {
 
   // Métodos para tareas
   static async getTasks(token, status = 'all') {
-    const endpoint = status === 'all' ? '/tasks' : `/tasks?status=${status}`;
-    return await api.get(endpoint, {
-      Authorization: `Bearer ${token}`,
-    });
-  }
+  const endpoint = status === 'all' ? '/tasks' : `/tasks?status=${status}`;
+  console.log("🔑 Enviando token en getTasks:", token ? "Sí" : "No");
+  return await api.get(endpoint, {
+    Authorization: `Bearer ${token}`,
+  });
+}
 
   static async getTask(token, taskId) {
     return await api.get(`/tasks/${taskId}`, {
@@ -33,10 +34,11 @@ class Auth {
   }
 
   static async createTask(token, taskData) {
-    return await api.post("/tasks", taskData, {
-      Authorization: `Bearer ${token}`,
-    });
-  }
+  console.log("🔑 Enviando token en createTask:", token ? "Sí" : "No");
+  return await api.post("/tasks", taskData, {
+    Authorization: `Bearer ${token}`,
+  });
+}
 
   static async updateTask(token, taskId, taskData) {
     return await api.put(`/tasks/${taskId}`, taskData, {

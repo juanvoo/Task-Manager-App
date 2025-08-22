@@ -51,13 +51,15 @@ document.addEventListener("DOMContentLoaded", () => {
   loadTasks();
 });
 
-// El resto de las funciones permanecen igual...
 async function loadTasks() {
   const token = localStorage.getItem('authToken');
   const statusFilter = document.getElementById('statusFilter').value;
   
+  console.log("📥 Cargando tareas con token:", token ? "Sí" : "No");
+  
   try {
     const tasks = await Auth.getTasks(token, statusFilter);
+    console.log("✅ Tareas recibidas:", tasks);
     renderTasks(tasks);
   } catch (error) {
     console.error("❌ Error al cargar tareas:", error);
@@ -66,6 +68,8 @@ async function loadTasks() {
 }
 
 function renderTasks(tasks) {
+  console.log("🎨 Renderizando tareas:", tasks);
+  
   const container = document.getElementById('tasksContainer');
   container.innerHTML = '';
   
@@ -102,6 +106,7 @@ function renderTasks(tasks) {
   document.querySelectorAll('.edit-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const taskId = e.target.getAttribute('data-id');
+      console.log("🔄 Botón editar clickeado para tarea ID:", taskId);
       editTask(taskId);
     });
   });
@@ -109,9 +114,12 @@ function renderTasks(tasks) {
   document.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const taskId = e.target.getAttribute('data-id');
+      console.log("🗑️ Botón eliminar clickeado para tarea ID:", taskId);
       deleteTask(taskId);
     });
   });
+  
+  console.log(`✅ Renderizadas ${tasks.length} tareas`);
 }
 
 function getStatusText(status) {
@@ -157,18 +165,22 @@ async function handleTaskSubmit(e) {
     status: document.getElementById('taskStatus').value,
     due_date: document.getElementById('taskDueDate').value
   };
+
+  console.log("📤 Enviando tarea:", taskData);
   
   try {
-    if (taskId) {
-      // Actualizar tarea existente
+     if (taskId) {
+      console.log("🔄 Actualizando tarea existente con ID:", taskId);
       await Auth.updateTask(token, taskId, taskData);
     } else {
-      // Crear nueva tarea
-      await Auth.createTask(token, taskData);
+      console.log("➕ Creando nueva tarea"); 
+      const response = await Auth.createTask(token, taskData);
+      console.log("✅ Respuesta del servidor:", response);
     }
     
     // Cerrar modal y recargar tareas
     document.getElementById('taskModal').style.display = 'none';
+    console.log("🔄 Recargando tareas...");
     loadTasks();
   } catch (error) {
     console.error("❌ Error al guardar tarea:", error);
@@ -179,8 +191,11 @@ async function handleTaskSubmit(e) {
 async function editTask(taskId) {
   const token = localStorage.getItem('authToken');
   
+  console.log("🔄 Editando tarea con ID:", taskId);
+  
   try {
     const task = await Auth.getTask(token, taskId);
+    console.log("✅ Tarea obtenida para editar:", task);
     openTaskModal(task);
   } catch (error) {
     console.error("❌ Error al cargar tarea:", error);
@@ -195,8 +210,11 @@ async function deleteTask(taskId) {
   
   const token = localStorage.getItem('authToken');
   
+  console.log("🗑️ Eliminando tarea con ID:", taskId);
+  
   try {
     await Auth.deleteTask(token, taskId);
+    console.log("✅ Tarea eliminada correctamente");
     loadTasks();
   } catch (error) {
     console.error("❌ Error al eliminar tarea:", error);

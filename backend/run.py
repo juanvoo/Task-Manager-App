@@ -7,6 +7,14 @@ import jwt
 import datetime
 from functools import wraps
 
+# Lista para almacenar tareas
+tasks = [
+    {"id": 1, "user_id": 1, "title": "Investigar crímenes", "description": "Revisar casos pendientes", "status": "in-progress", "due_date": "2023-12-31"},
+    {"id": 2, "user_id": 1, "title": "Reparar Batimóvil", "description": "Cambiar neumáticos y revisar motor", "status": "pending", "due_date": "2023-11-15"},
+    {"id": 3, "user_id": 1, "title": "Entrenar con Robin", "description": "Sesión de combate", "status": "completed", "due_date": "2023-10-30"}
+]
+next_task_id = 4 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'losBrunos33' 
 CORS(app, resources={
@@ -46,8 +54,6 @@ def register():
     # Aquí procesarías los datos del registro
     print(f"Recibido: {data}")
     
-    # En un caso real, guardarías en la base de datos
-    # Por ahora, simulamos un registro exitoso
     return jsonify({
         "status": "success",
         "message": "Usuario registrado correctamente"
@@ -61,9 +67,7 @@ def login():
     
     # Aquí procesarías el login
     print(f"Login intento: {data}")
-    
-    # En un caso real, verificarías en la base de datos
-    # Por ahora, simulamos un login exitoso y generamos un token
+ 
     if email and password:  # Validación simple
         # Generar token
         token = jwt.encode({
@@ -71,13 +75,15 @@ def login():
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         }, app.config['SECRET_KEY'])
         
+        print(f"✅ Token generado: {token}")
+        
         return jsonify({
             "status": "success",
             "message": "Login exitoso",
             "token": token,
             "user": {
                 "id": 1,
-                "username": email.split('@')[0],  # Simulación
+                "username": email.split('@')[0],
                 "email": email
             }
         })
@@ -90,51 +96,42 @@ def login():
 def get_tasks(current_user_id):
     status = request.args.get('status', 'all')
     
-    # En un caso real, obtendrías las tareas de la base de datos
-    # Por ahora, simulamos algunas tareas
-    tasks = [
-        {"id": 1, "user_id": 1, "title": "Investigar crímenes", "description": "Revisar casos pendientes", "status": "in-progress", "due_date": "2023-12-31"},
-        {"id": 2, "user_id": 1, "title": "Reparar Batimóvil", "description": "Cambiar neumáticos y revisar motor", "status": "pending", "due_date": "2023-11-15"},
-        {"id": 3, "user_id": 1, "title": "Entrenar con Robin", "description": "Sesión de combate", "status": "completed", "due_date": "2023-10-30"}
-    ]
+    print(f"📥 Solicitando tareas para usuario {current_user_id} con estado {status}")
     
-    # Filtrar por usuario actual
     user_tasks = [task for task in tasks if task['user_id'] == current_user_id]
     
-    # Filtrar por estado si es necesario
     if status != 'all':
         user_tasks = [task for task in user_tasks if task['status'] == status]
     
+    print(f"✅ Enviando {len(user_tasks)} tareas")
     return jsonify(user_tasks)
 
 @app.route('/api/tasks/<int:task_id>', methods=['GET'])
 @token_required
 def get_task(current_user_id, task_id):
-    # En un caso real, obtendrías la tarea de la base de datos
-    # Por ahora, simulamos algunas tareas
-    tasks = [
-        {"id": 1, "user_id": 1, "title": "Investigar crímenes", "description": "Revisar casos pendientes", "status": "in-progress", "due_date": "2023-12-31"},
-        {"id": 2, "user_id": 1, "title": "Reparar Batimóvil", "description": "Cambiar neumáticos y revisar motor", "status": "pending", "due_date": "2023-11-15"},
-        {"id": 3, "user_id": 1, "title": "Entrenar con Robin", "description": "Sesión de combate", "status": "completed", "due_date": "2023-10-30"}
-    ]
+    print(f"📥 Buscando tarea con ID {task_id} para usuario {current_user_id}")
     
-    # Buscar la tarea
+    # Buscar la tarea en la lista global
     task = next((t for t in tasks if t['id'] == task_id and t['user_id'] == current_user_id), None)
     
     if not task:
+        print(f"❌ Tarea con ID {task_id} no encontrada")
         return jsonify({"message": "Tarea no encontrada"}), 404
     
+    print(f"✅ Tarea encontrada: {task}")
     return jsonify(task)
 
 @app.route('/api/tasks', methods=['POST'])
 @token_required
 def create_task(current_user_id):
+    global next_task_id
     data = request.get_json()
     
-    # En un caso real, guardarías en la base de datos
-    # Por ahora, simulamos la creación
+    print(f"📥 Datos recibidos para crear tarea: {data}")
+    
+    # Crear nueva tarea
     new_task = {
-        "id": 4,  # ID simulado
+        "id": next_task_id,
         "user_id": current_user_id,
         "title": data['title'],
         "description": data.get('description', ''),
@@ -142,6 +139,11 @@ def create_task(current_user_id):
         "due_date": data.get('due_date')
     }
     
+    # Agregar a la lista
+    tasks.append(new_task)
+    next_task_id += 1
+    
+    print(f"✅ Tarea creada: {new_task}")
     return jsonify(new_task), 201
 
 @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
@@ -149,24 +151,35 @@ def create_task(current_user_id):
 def update_task(current_user_id, task_id):
     data = request.get_json()
     
-    # En un caso real, actualizarías en la base de datos
-    # Por ahora, simulamos la actualización
-    updated_task = {
-        "id": task_id,
-        "user_id": current_user_id,
-        "title": data.get('title', 'Título actualizado'),
-        "description": data.get('description', 'Descripción actualizada'),
-        "status": data.get('status', 'pending'),
-        "due_date": data.get('due_date')
-    }
+    # Buscar la tarea en la lista global
+    task = next((t for t in tasks if t['id'] == task_id and t['user_id'] == current_user_id), None)
     
-    return jsonify(updated_task)
+    if not task:
+        return jsonify({"message": "Tarea no encontrada"}), 404
+    
+    # Actualizar los campos
+    task['title'] = data.get('title', task['title'])
+    task['description'] = data.get('description', task['description'])
+    task['status'] = data.get('status', task['status'])
+    task['due_date'] = data.get('due_date', task['due_date'])
+    
+    return jsonify(task)
 
 @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
 @token_required
 def delete_task(current_user_id, task_id):
-    # En un caso real, eliminarías de la base de datos
-    # Por ahora, simulamos la eliminación
+    print(f"📥 Eliminando tarea con ID {task_id} para usuario {current_user_id}")
+    
+    # Buscar el índice de la tarea en la lista global
+    task_index = next((i for i, t in enumerate(tasks) if t['id'] == task_id and t['user_id'] == current_user_id), None)
+    
+    if task_index is None:
+        print(f"❌ Tarea con ID {task_id} no encontrada para eliminar")
+        return jsonify({"message": "Tarea no encontrada"}), 404
+    
+    # Eliminar la tarea
+    deleted_task = tasks.pop(task_index)
+    print(f"✅ Tarea eliminada: {deleted_task}")
     
     return jsonify({"message": "Tarea eliminada correctamente"})
 

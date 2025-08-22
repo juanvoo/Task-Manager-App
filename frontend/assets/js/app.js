@@ -40,24 +40,28 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        console.log("📤 Enviando login:", credentials);
-        const response = await Auth.login(credentials);
-        alert("✅ Login exitoso");
-        console.log("➡️ Respuesta del servidor:", response);
-
-        // Guardar el token de autenticación
-     if (response.token) {
-      localStorage.setItem('authToken', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-    }
+  console.log("📤 Enviando login:", credentials);
+  const response = await Auth.login(credentials);
+  alert("✅ Login exitoso");
+  console.log("➡️ Respuesta del servidor:", response);
   
-      window.location.href = 'dashboard.html';
-
-        loginForm.reset();
-      } catch (error) {
-        console.error("❌ Error en login:", error);
-        alert("⚠️ Error en login");
-      }
+  // Guardar el token de autenticación
+  if (response.token) {
+    localStorage.setItem('authToken', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+    console.log("💾 Token guardado:", response.token);
+  } else {
+    console.error("❌ No se recibió token en la respuesta");
+  }
+  
+  // Redirigir al dashboard
+  window.location.href = 'dashboard.html';
+  
+  loginForm.reset();
+} catch (error) {
+  console.error("❌ Error en login:", error);
+  alert("⚠️ Error en login");
+}
     });
   }
 });
