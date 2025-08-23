@@ -57,3 +57,5 @@ Goal: Demonstrate full stack development skills, clean architecture, and modern 
 ✨ Finished – MVP version is complete and ready for use. ✅
 #
 ✨ Continuously seeking improvement, learning, and collaboration opportunities.
+#
+**👨‍💻 By: Juan Moreira**
